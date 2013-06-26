@@ -15,7 +15,7 @@ import Control.Monad
 import Control.Monad.IO.Class
 import qualified Data.Map as Map
 import Text.Html (stringToHtmlString)
-import System.Time
+import Data.Time.Clock
 import Text.StringTemplates.Files
 import Text.StringTemplates.TextTemplates
 import Text.StringTemplates.Utils
@@ -57,7 +57,7 @@ newCheckedTemplate (n,v) = do
 -- | Returns the latest modification time across all template files
 getTemplatesModTime :: FilePath   -- ^ path to dir containing .csv files with template files
                     -> FilePath -- ^ dir path to recursively scan for .st files containing string templates
-                    -> IO ClockTime
+                    -> IO UTCTime
 getTemplatesModTime textTemplatesDir templatesDirPath = do
     mt1 <- getRecursiveMTime templatesDirPath
     mt2 <- getRecursiveMTime textTemplatesDir

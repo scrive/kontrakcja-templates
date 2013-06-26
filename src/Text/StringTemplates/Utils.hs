@@ -6,7 +6,7 @@ module Text.StringTemplates.Utils (directoryEntriesRecursive,directoryFilesRecur
 
 import System.Directory
 import Data.List (isSuffixOf)
-import System.Time (ClockTime)
+import Data.Time.Clock (UTCTime)
 
 directoryEntriesRecursive :: FilePath -- ^ dir path to be searched for recursively
                           -> IO ([FilePath], [FilePath]) -- ^ (list of all subdirs, list of all files)
@@ -28,7 +28,7 @@ directoryFilesRecursive :: FilePath -- ^ dir path to be searched for recursively
 directoryFilesRecursive path = snd `fmap` directoryEntriesRecursive path
 
 -- | Check recursively time of modification of any file(or dir) in directory
-getRecursiveMTime :: FilePath -> IO ClockTime
+getRecursiveMTime :: FilePath -> IO UTCTime
 getRecursiveMTime path = do
   (dirs, files) <- directoryEntriesRecursive path
   mtimes <- mapM getModificationTime $ dirs ++ files
