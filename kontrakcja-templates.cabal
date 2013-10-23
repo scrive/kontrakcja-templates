@@ -1,10 +1,10 @@
 Name:                kontrakcja-templates
-Version:             0.3
+Version:             0.4
 Synopsis:
     Utilities for working with many HStringTemplate templates from files
 Description:
     This library adds support for working with multiple templates in a single file,
-    and .csv files containing mapping from template names to multiple template versions
+    and .json files containing mapping from template names to multiple template versions
     (e.g. for translations)
 
 License:             BSD3
@@ -42,7 +42,10 @@ Library
                    directory >= 1.2,
                    html >= 1.0.1.2,
                    MissingH >= 1.2,
-                   parsec >= 3.1.1
+                   parsec >= 3.1.1,
+                   fields-json >= 0.2.2.2,
+                   json == 0.5
+
 
 Test-Suite test-text-string-templates
   type:            exitcode-stdio-1.0
