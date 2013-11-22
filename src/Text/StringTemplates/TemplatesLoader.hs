@@ -9,6 +9,7 @@ module Text.StringTemplates.TemplatesLoader ( Templates
                                             ) where
 
 import Data.List (isSuffixOf)
+import Data.Maybe (fromMaybe)
 import Text.StringTemplate
 import Text.StringTemplate.Classes
 import Control.Monad
@@ -28,7 +29,7 @@ type GlobalTemplates = Map.Map String Templates
 
 -- | Retrieve templates for specified column name
 localizedVersion :: String -> GlobalTemplates -> Templates
-localizedVersion col mtemplates = mtemplates Map.! col
+localizedVersion col mtemplates = fromMaybe (error $ "localizedVersion: undefined column: " ++ show col) $ Map.lookup col mtemplates
 
 -- Fixme: Make this do only one read of all files !!
 -- | Reads text templates and templates from files (see TextTemplates and Files modules docs respectively).
@@ -43,8 +44,8 @@ readGlobalTemplates textTemplatesFilePath templatesDirPath  = do
   let templatesFilePaths = filter (".st" `isSuffixOf`) files
   ts <- liftIO $ mapM getTemplates templatesFilePaths
   tts <- liftIO $ getTextTemplates textTemplatesFilePath
-  liftM Map.fromList $ forM (Map.keys tts) $ \col -> do
-    checked <- mapM newCheckedTemplate $ (concat ts) ++ (tts Map.! col)
+  liftM Map.fromList $ forM (Map.toList tts) $ \(col,t) -> do
+    checked <- mapM newCheckedTemplate $ (concat ts) ++ t
     return ((col, groupStringTemplates checked)::(String, Templates))
 
 newCheckedTemplate :: Monad m => (String, String) -> m (String, StringTemplate String)
