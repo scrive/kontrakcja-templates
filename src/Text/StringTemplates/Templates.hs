@@ -108,6 +108,10 @@ instance (TemplatesMonad m , Error e) => TemplatesMonad (ErrorT e m) where
   getTemplates = lift getTemplates
   getTextTemplatesByColumn = lift . getTextTemplatesByColumn
 
+instance TemplatesMonad m => TemplatesMonad (ReaderT r m) where
+  getTemplates = lift getTemplates
+  getTextTemplatesByColumn = lift . getTextTemplatesByColumn
+
 -- | renders a template by name
 renderTemplate :: TemplatesMonad m =>
                  String     -- ^ template name
