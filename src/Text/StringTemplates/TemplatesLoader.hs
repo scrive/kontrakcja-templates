@@ -24,19 +24,17 @@ import Text.StringTemplates.Utils
 -- | Group of string templates
 type Templates = STGroup String
 -- | Global map of templates (for a project),
---   indexed by a column name (for text string templates, see TextTemplates for doc)
+--   indexed by a language name (for text string templates, see TextTemplates for doc)
 type GlobalTemplates = Map.Map String Templates
 
--- | Retrieve templates for specified column name
+-- | Retrieve templates for specified language name
 localizedVersion :: String -> GlobalTemplates -> Templates
-localizedVersion col mtemplates = fromMaybe (error $ "localizedVersion: undefined column: " ++ show col) $ Map.lookup col mtemplates
+localizedVersion col mtemplates = fromMaybe (error $ "localizedVersion: undefined language: " ++ show col) $ Map.lookup col mtemplates
 
 -- Fixme: Make this do only one read of all files !!
 -- | Reads text templates and templates from files (see TextTemplates and Files modules docs respectively).
---   List of text columns is used to load text templates for every column (the rest of them are
---   used as fallback columns)
 readGlobalTemplates :: MonadIO m =>
-                      FilePath   -- ^ dir path to recursively scan for .csv files containing text templates
+                      FilePath   -- ^ dir path to recursively scan for .json files containing text templates
                     -> FilePath   -- ^ dir path to recursively scan for .st files containing string templates
                     -> m GlobalTemplates
 readGlobalTemplates textTemplatesFilePath templatesDirPath  = do
