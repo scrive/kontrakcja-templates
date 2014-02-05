@@ -1,5 +1,5 @@
 Name:                kontrakcja-templates
-Version:             0.5
+Version:             0.6
 Synopsis:
     Utilities for working with many HStringTemplate templates from files
 Description:
@@ -47,26 +47,3 @@ Library
                    parsec >= 3.1.1,
                    fields-json >= 0.2.2.2,
                    json == 0.5
-
-
-Test-Suite test-text-string-templates
-  type:            exitcode-stdio-1.0
-  hs-source-dirs:  test
-  main-is:         Main.hs
-  build-depends:   base >= 4 && < 6
-  build-depends:   syb >= 0.1
-  build-depends:   MissingH >= 1.0
-  build-depends:   mtl >= 2.0
-  build-depends:   time >= 1.0
-  build-depends:   directory >= 1.0
-  build-depends:   hslogger >= 1.1.4
-  build-depends:   test-framework >= 0.4.1
-  build-depends:   test-framework-quickcheck2
-  build-depends:   test-framework-hunit
-  build-depends:   HUnit
-  build-depends:   string-templates
-  build-depends:   old-time
-  build-depends:   HStringTemplate >= 0.7.0
-  build-depends:   containers >= 0.4.2.1
-
-  extensions:      FlexibleInstances

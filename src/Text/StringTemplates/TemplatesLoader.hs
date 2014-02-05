@@ -8,7 +8,7 @@ module Text.StringTemplates.TemplatesLoader ( Templates
                                             , getTemplatesModTime
                                             ) where
 
-import Data.List (isSuffixOf)
+import Data.List (isSuffixOf,find)
 import Data.Maybe (fromMaybe)
 import Text.StringTemplate
 import Text.StringTemplate.Classes
@@ -35,16 +35,32 @@ localizedVersion col mtemplates = fromMaybe (error $ "localizedVersion: undefine
 -- | Reads text templates and templates from files (see TextTemplates and Files modules docs respectively).
 readGlobalTemplates :: MonadIO m =>
                       FilePath   -- ^ dir path to recursively scan for .json files containing text templates
-                    -> FilePath   -- ^ dir path to recursively scan for .st files containing string templates
+                    -> FilePath  -- ^ dir path to recursively scan for .st files containing string templates
+                    -> String    -- ^ default language. We can guarantee that empty language texts will be replaced
                     -> m GlobalTemplates
-readGlobalTemplates textTemplatesFilePath templatesDirPath  = do
+readGlobalTemplates textTemplatesFilePath templatesDirPath  defaultLang = do
   files <- liftIO $ directoryFilesRecursive templatesDirPath
   let templatesFilePaths = filter (".st" `isSuffixOf`) files
   ts <- liftIO $ mapM getTemplates templatesFilePaths
   tts <- liftIO $ getTextTemplates textTemplatesFilePath
+  let defaultLangTemplates = case (find (\l -> defaultLang == fst l) $ Map.toList tts) of
+                               Just (_,t) -> t
+                               Nothing -> error $ "Default language " ++ defaultLang ++ "is not defined."
   liftM Map.fromList $ forM (Map.toList tts) $ \(col,t) -> do
-    checked <- mapM newCheckedTemplate $ (concat ts) ++ t
+    let  t' =  fixTT t defaultLangTemplates
+    checked <- mapM newCheckedTemplate $ (concat ts) ++ t'
     return ((col, groupStringTemplates checked)::(String, Templates))
+
+-- All empty templates will be replaced by values from default lang.
+-- Missing templates from defaul lang will be added
+fixTT:: [(String, String)] -> [(String, String)] -> [(String, String)]
+fixTT [] d = d
+fixTT ((n,""):r) d = case find (\x -> n == fst x) d of
+                          Just t -> t :  fixTT r (filter (\x -> n /= fst x) d)
+                          Nothing -> (n,"") : fixTT r d
+fixTT ((n,v):r) d = (n,v) :  fixTT r (filter (\x -> n /= fst x) d)
+
+
 
 newCheckedTemplate :: Monad m => (String, String) -> m (String, StringTemplate String)
 newCheckedTemplate (n,v) = do
