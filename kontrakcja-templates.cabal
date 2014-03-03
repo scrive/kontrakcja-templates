@@ -15,7 +15,6 @@ Build-type:          Simple
 Stability:           None
 Category:            Web
 Cabal-version:       >=1.9
-extra-source-files:  example.hs
 
 Library
   exposed-modules: Text.StringTemplates.Fields
