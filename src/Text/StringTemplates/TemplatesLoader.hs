@@ -45,7 +45,7 @@ readGlobalTemplates textTemplatesFilePath templatesDirPath  defaultLang = do
   tts <- liftIO $ getTextTemplates textTemplatesFilePath
   let defaultLangTemplates = case (find (\l -> defaultLang == fst l) $ Map.toList tts) of
                                Just (_,t) -> t
-                               Nothing -> error $ "Default language " ++ defaultLang ++ "is not defined."
+                               Nothing -> error $ "Default language " ++ defaultLang ++ " is not defined."
   liftM Map.fromList $ forM (Map.toList tts) $ \(col,t) -> do
     let  t' =  fixTT t defaultLangTemplates
     checked <- mapM newCheckedTemplate $ (concat ts) ++ t'

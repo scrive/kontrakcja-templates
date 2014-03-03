@@ -35,6 +35,7 @@ module Text.StringTemplates.Fields ( Fields
 import Control.Applicative
 import Control.Monad.Reader
 import Control.Monad.State.Strict
+import Data.Int
 import Text.StringTemplate.Base hiding (ToSElem, toSElem, render)
 import Text.StringTemplate.Classes hiding (ToSElem, toSElem)
 import qualified Data.ByteString as BS
@@ -81,6 +82,15 @@ class ToSElem a where
 
 instance (HST.ToSElem a) => ToSElem a where
   toSElem = HST.toSElem
+
+instance ToSElem Int16 where
+  toSElem = toSElem . toInteger
+
+instance ToSElem Int32 where
+  toSElem = toSElem . toInteger
+
+instance ToSElem Int64 where
+  toSElem = toSElem . toInteger
 
 instance ToSElem BS.ByteString where
   toSElem = HST.toSElem . BS.toString
