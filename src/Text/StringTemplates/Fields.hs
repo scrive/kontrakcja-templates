@@ -1,4 +1,4 @@
-{-# LANGUAGE OverlappingInstances #-}
+{-# LANGUAGE MultiParamTypeClasses, TypeFamilies, OverlappingInstances #-}
 -- | Module for easy creating template params
 --
 -- Example usage:
@@ -24,7 +24,7 @@
 -- params :: [(String, SElem String)]
 -- params = runIdentity $ runFields fields
 -- @
-module Text.StringTemplates.Fields ( Fields
+module Text.StringTemplates.Fields ( Fields(..)
                                    , runFields
                                    , value
                                    , valueM
@@ -33,8 +33,10 @@ module Text.StringTemplates.Fields ( Fields
                                    ) where
 
 import Control.Applicative
+import Control.Monad.Base (MonadBase)
 import Control.Monad.Reader
 import Control.Monad.State.Strict
+import Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM, defaultLiftWith, defaultRestoreT)
 import Data.Int
 import Text.StringTemplate.Base hiding (ToSElem, toSElem, render)
 import Text.StringTemplate.Classes hiding (ToSElem, toSElem)
@@ -46,8 +48,22 @@ import qualified Text.StringTemplate.Classes as HST
 import Text.StringTemplates.TemplatesLoader ()
 
 -- | Simple monad transformer that collects info about template params
-newtype Fields m a = Fields (StateT [(String, SElem String)] m a)
-  deriving (Applicative, Functor, Monad, MonadTrans)
+newtype Fields m a = Fields { unFields :: StateT [(String, SElem String)] m a }
+  deriving (Applicative, Functor, Monad, MonadBase b, MonadTrans)
+
+instance MonadBaseControl IO m => MonadBaseControl IO (Fields m) where
+  newtype StM (Fields m) a = StM { unStM :: ComposeSt Fields m a }
+  liftBaseWith = defaultLiftBaseWith StM
+  restoreM     = defaultRestoreM unStM
+  {-# INLINE liftBaseWith #-}
+  {-# INLINE restoreM #-}
+
+instance MonadTransControl Fields where
+  newtype StT Fields m = StT { unStT :: StT (StateT [(String, SElem String)]) m }
+  liftWith = defaultLiftWith Fields unFields StT
+  restoreT = defaultRestoreT Fields unStT
+  {-# INLINE liftWith #-}
+  {-# INLINE restoreT #-}
 
 -- | get all collected template params
 runFields :: Monad m => Fields m () -> m [(String, SElem String)]
