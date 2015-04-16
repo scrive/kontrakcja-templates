@@ -86,53 +86,17 @@ module Text.StringTemplates.Templates ( Fields
                                       , renderHelper
                                       ) where
 
-import Control.Monad.Trans.Maybe
 import Text.StringTemplate.Base hiding (ToSElem, toSElem, render)
+import Text.StringTemplates.Templates.Class
 import Text.StringTemplates.TemplatesLoader
 
 import Text.StringTemplates.Fields
 import Control.Applicative
 import Control.Monad.Base (MonadBase)
+import Control.Monad.Catch
 import Control.Monad.Reader
-import Control.Monad.State (StateT(..))
 import Control.Monad.Identity
-import Control.Monad.Error
 import Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM, defaultLiftWith, defaultRestoreT)
-
--- | simple reader monad class that provides access to templates
-class (Functor m, Monad m) => TemplatesMonad m where
-  getTemplates      :: m Templates -- ^ get templates (for text templates default language name is used)
-  getTextTemplatesByLanguage :: String -> m Templates -- ^ get templates (for text templates specified language name is used)
-
-instance TemplatesMonad m => TemplatesMonad (MaybeT m) where
-  getTemplates = lift getTemplates
-  getTextTemplatesByLanguage = lift . getTextTemplatesByLanguage
-
-instance (TemplatesMonad m , Error e) => TemplatesMonad (ErrorT e m) where
-  getTemplates = lift getTemplates
-  getTextTemplatesByLanguage = lift . getTextTemplatesByLanguage
-
-instance TemplatesMonad m => TemplatesMonad (ReaderT r m) where
-  getTemplates = lift getTemplates
-  getTextTemplatesByLanguage = lift . getTextTemplatesByLanguage
-
-instance TemplatesMonad m => TemplatesMonad (StateT r m) where
-  getTemplates = lift getTemplates
-  getTextTemplatesByLanguage = lift . getTextTemplatesByLanguage
-
-instance MonadBaseControl IO m => MonadBaseControl IO (TemplatesT m) where
-  newtype StM (TemplatesT m) a = StM { unStM :: ComposeSt TemplatesT m a }
-  liftBaseWith = defaultLiftBaseWith StM
-  restoreM     = defaultRestoreM unStM
-  {-# INLINE liftBaseWith #-}
-  {-# INLINE restoreM #-}
-
-instance MonadTransControl TemplatesT where
-  newtype StT TemplatesT m = StT { unStT :: StT (ReaderT (String, GlobalTemplates)) m }
-  liftWith = defaultLiftWith TemplatesT unTT StT
-  restoreT = defaultRestoreT TemplatesT unStT
-  {-# INLINE liftWith #-}
-  {-# INLINE restoreT #-}
 
 -- | renders a template by name
 renderTemplate :: TemplatesMonad m =>
@@ -163,16 +127,32 @@ renderHelper ts name fields = do
   attrs <- runFields fields
   return $ renderTemplateMain ts name ([]::[(String, String)]) (setManyAttrib attrs)
 
+type InnerTemplatesT = ReaderT (String, GlobalTemplates)
+
 -- | Simple implementation of TemplatesMonad
-newtype TemplatesT m a = TemplatesT { unTT :: ReaderT (String, GlobalTemplates) m a }
-    deriving (Applicative, Functor, Monad, MonadIO, MonadTrans, MonadBase b)
+newtype TemplatesT m a = TemplatesT { unTT :: InnerTemplatesT m a }
+  deriving (Applicative, Functor, Monad, MonadIO, MonadTrans, MonadBase b, MonadThrow, MonadCatch, MonadMask)
 
 runTemplatesT :: (Functor m, Monad m) =>
                 (String, GlobalTemplates) -- ^ (default language name, global templates)
               -> TemplatesT m a -> m a
 runTemplatesT ts action = runReaderT (unTT action) ts
 
-instance (Functor m, Monad m) => TemplatesMonad (TemplatesT m) where
+instance MonadBaseControl IO m => MonadBaseControl IO (TemplatesT m) where
+  newtype StM (TemplatesT m) a = StM { unStM :: ComposeSt TemplatesT m a }
+  liftBaseWith = defaultLiftBaseWith StM
+  restoreM     = defaultRestoreM unStM
+  {-# INLINE liftBaseWith #-}
+  {-# INLINE restoreM #-}
+
+instance MonadTransControl TemplatesT where
+  newtype StT TemplatesT m = StT { unStT :: StT InnerTemplatesT m }
+  liftWith = defaultLiftWith TemplatesT unTT StT
+  restoreT = defaultRestoreT TemplatesT unStT
+  {-# INLINE liftWith #-}
+  {-# INLINE restoreT #-}
+
+instance (Applicative m, Monad m) => TemplatesMonad (TemplatesT m) where
   getTemplates = TemplatesT $ do
     (lang, ts) <- ask
     return $ localizedVersion lang ts

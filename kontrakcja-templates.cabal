@@ -1,5 +1,5 @@
 Name:                kontrakcja-templates
-Version:             0.8.1
+Version:             0.9
 Synopsis:
     Utilities for working with many HStringTemplate templates from files
 Description:
@@ -20,6 +20,7 @@ Library
   exposed-modules: Text.StringTemplates.Fields
                    Text.StringTemplates.Files
                    Text.StringTemplates.Templates
+                   Text.StringTemplates.Templates.Class
                    Text.StringTemplates.TemplatesLoader
                    Text.StringTemplates.TextTemplates
                    Text.StringTemplates.Utils
@@ -31,6 +32,7 @@ Library
                    GeneralizedNewtypeDeriving
   build-depends:   base >= 4 && < 6,
                    HStringTemplate >= 0.7.0,
+                   exceptions >= 0.6,
                    containers >= 0.4.2.1,
                    utf8-string >= 0.3.6,
                    bytestring >= 0.9.2.1,

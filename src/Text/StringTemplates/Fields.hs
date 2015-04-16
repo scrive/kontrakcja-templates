@@ -34,6 +34,7 @@ module Text.StringTemplates.Fields ( Fields(..)
 
 import Control.Applicative
 import Control.Monad.Base (MonadBase)
+import Control.Monad.Catch
 import Control.Monad.Reader
 import Control.Monad.State.Strict
 import Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM, defaultLiftWith, defaultRestoreT)
@@ -47,9 +48,11 @@ import qualified Text.StringTemplate.Classes as HST
 
 import Text.StringTemplates.TemplatesLoader ()
 
+type InnerFields = StateT [(String, SElem String)]
+
 -- | Simple monad transformer that collects info about template params
-newtype Fields m a = Fields { unFields :: StateT [(String, SElem String)] m a }
-  deriving (Applicative, Functor, Monad, MonadBase b, MonadTrans)
+newtype Fields m a = Fields { unFields :: InnerFields m a }
+  deriving (Applicative, Functor, Monad, MonadBase b, MonadTrans, MonadThrow, MonadCatch, MonadMask)
 
 instance MonadBaseControl IO m => MonadBaseControl IO (Fields m) where
   newtype StM (Fields m) a = StM { unStM :: ComposeSt Fields m a }
@@ -59,7 +62,7 @@ instance MonadBaseControl IO m => MonadBaseControl IO (Fields m) where
   {-# INLINE restoreM #-}
 
 instance MonadTransControl Fields where
-  newtype StT Fields m = StT { unStT :: StT (StateT [(String, SElem String)]) m }
+  newtype StT Fields m = StT { unStT :: StT InnerFields m }
   liftWith = defaultLiftWith Fields unFields StT
   restoreT = defaultRestoreT Fields unStT
   {-# INLINE liftWith #-}
