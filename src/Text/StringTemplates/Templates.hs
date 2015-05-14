@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, TypeFamilies #-}
+{-# LANGUAGE CPP, MultiParamTypeClasses, TypeFamilies #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Templates.Templates
@@ -138,17 +138,29 @@ runTemplatesT :: (Functor m, Monad m) =>
               -> TemplatesT m a -> m a
 runTemplatesT ts action = runReaderT (unTT action) ts
 
-instance MonadBaseControl IO m => MonadBaseControl IO (TemplatesT m) where
+instance MonadBaseControl b m => MonadBaseControl b (TemplatesT m) where
+#if MIN_VERSION_monad_control(1,0,0)
+  type StM (TemplatesT m) a = ComposeSt TemplatesT m a
+  liftBaseWith = defaultLiftBaseWith
+  restoreM     = defaultRestoreM
+#else
   newtype StM (TemplatesT m) a = StM { unStM :: ComposeSt TemplatesT m a }
   liftBaseWith = defaultLiftBaseWith StM
   restoreM     = defaultRestoreM unStM
+#endif
   {-# INLINE liftBaseWith #-}
   {-# INLINE restoreM #-}
 
 instance MonadTransControl TemplatesT where
+#if MIN_VERSION_monad_control(1,0,0)
+  type StT TemplatesT m = StT InnerTemplatesT m
+  liftWith = defaultLiftWith TemplatesT unTT
+  restoreT = defaultRestoreT TemplatesT
+#else
   newtype StT TemplatesT m = StT { unStT :: StT InnerTemplatesT m }
   liftWith = defaultLiftWith TemplatesT unTT StT
   restoreT = defaultRestoreT TemplatesT unStT
+#endif
   {-# INLINE liftWith #-}
   {-# INLINE restoreT #-}
 

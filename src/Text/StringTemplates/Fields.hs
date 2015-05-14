@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses, TypeFamilies, OverlappingInstances #-}
+{-# LANGUAGE CPP, MultiParamTypeClasses, TypeFamilies, OverlappingInstances #-}
 -- | Module for easy creating template params
 --
 -- Example usage:
@@ -19,7 +19,7 @@
 --                    value \"foo421\" \"bar421\"
 --                    value \"foo422\" \"bar422\"
 --                  ]
--- 
+--
 -- \-- applicable to renderTemplateMain functions
 -- params :: [(String, SElem String)]
 -- params = runIdentity $ runFields fields
@@ -54,17 +54,29 @@ type InnerFields = StateT [(String, SElem String)]
 newtype Fields m a = Fields { unFields :: InnerFields m a }
   deriving (Applicative, Functor, Monad, MonadBase b, MonadTrans, MonadThrow, MonadCatch, MonadMask)
 
-instance MonadBaseControl IO m => MonadBaseControl IO (Fields m) where
+instance MonadBaseControl b m => MonadBaseControl b (Fields m) where
+#if MIN_VERSION_monad_control(1,0,0)
+  type StM (Fields m) a = ComposeSt Fields m a
+  liftBaseWith = defaultLiftBaseWith
+  restoreM     = defaultRestoreM
+#else
   newtype StM (Fields m) a = StM { unStM :: ComposeSt Fields m a }
   liftBaseWith = defaultLiftBaseWith StM
   restoreM     = defaultRestoreM unStM
+#endif
   {-# INLINE liftBaseWith #-}
   {-# INLINE restoreM #-}
 
 instance MonadTransControl Fields where
+#if MIN_VERSION_monad_control(1,0,0)
+  type StT Fields m = StT InnerFields m
+  liftWith = defaultLiftWith Fields unFields
+  restoreT = defaultRestoreT Fields
+#else
   newtype StT Fields m = StT { unStT :: StT InnerFields m }
   liftWith = defaultLiftWith Fields unFields StT
   restoreT = defaultRestoreT Fields unStT
+#endif
   {-# INLINE liftWith #-}
   {-# INLINE restoreT #-}
 
