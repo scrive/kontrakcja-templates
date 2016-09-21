@@ -9,13 +9,18 @@ Description:
 
 License:             BSD3
 License-file:        LICENSE
-Author:              Scrive
-Maintainer:          bartek@scrive.com
+Author:              Scrive AB
+Maintainer:          Bartek &#262;wik&#322;owski <bartek@scrive.com>
+Copyright:           Scrive AB
 Build-type:          Simple
 Stability:           None
 Category:            Web
 Cabal-version:       >=1.9
-tested-with:         GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
+Tested-with:         GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
+
+Source-repository head
+  type:     git
+  location: https://github.com/scrive/kontrakcja-templates
 
 Library
   exposed-modules: Text.StringTemplates.Fields
@@ -27,7 +32,7 @@ Library
                    Text.StringTemplates.Utils
 
   hs-source-dirs:  src
-  GHC-Options:     -Wall -rtsopts
+  GHC-Options:     -Wall
   Extensions:      FlexibleInstances,
                    UndecidableInstances,
                    GeneralizedNewtypeDeriving
