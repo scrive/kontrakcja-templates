@@ -1,12 +1,13 @@
 Name:                kontrakcja-templates
 Version:             0.10
 Synopsis:
-    Utilities for working with many HStringTemplate templates from files
+    Utilities for working with many HStringTemplate templates from files.
 Description:
-    This library adds support for working with multiple templates in a single file,
-    and .json files containing mapping from template names to multiple template versions
-    (e.g. for translations)
+    This library adds support for working with multiple templates in a single
+    file, and .json files containing a mapping from template names to multiple
+    template versions (e.g. for translations).
 
+Homepage:            https://github.com/scrive/kontrakcja-templates
 License:             BSD3
 License-file:        LICENSE
 Author:              Scrive AB
@@ -16,11 +17,12 @@ Build-type:          Simple
 Stability:           None
 Category:            Web
 Cabal-version:       >=1.9
-Tested-with:         GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3, GHC == 8.0.1
+Tested-with:         GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4,
+                     GHC == 7.10.3, GHC == 8.0.1
 
 Source-repository head
   type:     git
-  location: https://github.com/scrive/kontrakcja-templates
+  location: https://github.com/scrive/kontrakcja-templates.git
 
 Library
   exposed-modules: Text.StringTemplates.Fields
