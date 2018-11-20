@@ -17,8 +17,8 @@ Build-type:          Simple
 Stability:           None
 Category:            Web
 Cabal-version:       >=1.9
-Tested-with:         GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4,
-                     GHC == 7.10.3, GHC == 8.0.1
+Tested-with:         GHC == 7.4.2, GHC == 7.6.3, GHC == 7.8.4, GHC == 7.10.3,
+                     GHC == 8.0.2, GHC == 8.2.2, GHC == 8.4.4, GHC == 8.6.2
 
 Source-repository head
   type:     git
