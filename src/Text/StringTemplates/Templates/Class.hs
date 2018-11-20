@@ -1,4 +1,3 @@
-{-# LANGUAGE OverlappingInstances #-}
 module Text.StringTemplates.Templates.Class where
 
 import Control.Applicative

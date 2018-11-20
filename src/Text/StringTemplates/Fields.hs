@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, MultiParamTypeClasses, TypeFamilies, OverlappingInstances #-}
+{-# LANGUAGE CPP, MultiParamTypeClasses, TypeFamilies #-}
 -- | Module for easy creating template params
 --
 -- Example usage:
@@ -135,8 +135,8 @@ instance ToSElem [BS.ByteString] where
 instance ToSElem String where
   toSElem l = HST.toSElem l
 
-instance (HST.ToSElem a) => ToSElem [a] where
+instance {-# OVERLAPPING #-} (HST.ToSElem a) => ToSElem [a] where
   toSElem l  = LI $ map HST.toSElem l
 
-instance (HST.ToSElem a) => ToSElem (M.Map String a) where
+instance {-# OVERLAPPING #-} (HST.ToSElem a) => ToSElem (M.Map String a) where
   toSElem m = SM $ M.map HST.toSElem m
