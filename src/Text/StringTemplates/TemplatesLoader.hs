@@ -13,6 +13,7 @@ import Data.Maybe (fromMaybe)
 import Text.StringTemplate
 import Text.StringTemplate.Classes
 import Control.Monad
+import qualified Control.Monad.Fail as MF
 import Control.Monad.IO.Class
 import qualified Data.Map as Map
 import Text.Html (stringToHtmlString)
@@ -33,7 +34,7 @@ localizedVersion col mtemplates = fromMaybe (error $ "localizedVersion: undefine
 
 -- Fixme: Make this do only one read of all files !!
 -- | Reads text templates and templates from files (see TextTemplates and Files modules docs respectively).
-readGlobalTemplates :: (MonadFail m, MonadIO m) =>
+readGlobalTemplates :: (MF.MonadFail m, MonadIO m) =>
                       FilePath   -- ^ dir path to recursively scan for .json files containing text templates
                     -> FilePath  -- ^ dir path to recursively scan for .st files containing string templates
                     -> String    -- ^ default language. We can guarantee that empty language texts will be replaced
@@ -62,11 +63,11 @@ fixTT ((n,v):r) d = (n,v) :  fixTT r (filter (\x -> n /= fst x) d)
 
 
 
-newCheckedTemplate :: (MonadFail m, Monad m) => (String, String) -> m (String, StringTemplate String)
+newCheckedTemplate :: (MF.MonadFail m, Monad m) => (String, String) -> m (String, StringTemplate String)
 newCheckedTemplate (n,v) = do
   let t = newSTMP v
       (errors, _, _) = checkTemplate t
-  maybe (return ()) (\e -> fail $ "newCheckedTemplate: problem with template " ++ show n ++ ": " ++ e) errors
+  maybe (return ()) (\e -> MF.fail $ "newCheckedTemplate: problem with template " ++ show n ++ ": " ++ e) errors
   return (n,t)
 
 -- | Returns the latest modification time across all template files
