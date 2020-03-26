@@ -91,7 +91,6 @@ import Text.StringTemplates.Templates.Class
 import Text.StringTemplates.TemplatesLoader
 
 import Text.StringTemplates.Fields
-import Control.Applicative
 import Control.Monad.Base (MonadBase)
 import Control.Monad.Catch
 import Control.Monad.Reader
@@ -138,7 +137,7 @@ runTemplatesT :: (Functor m, Monad m) =>
               -> TemplatesT m a -> m a
 runTemplatesT ts action = runReaderT (unTT action) ts
 
-instance MonadBaseControl b m => MonadBaseControl b (TemplatesT m) where
+instance {-# OVERLAPPING #-} MonadBaseControl b m => MonadBaseControl b (TemplatesT m) where
 #if MIN_VERSION_monad_control(1,0,0)
   type StM (TemplatesT m) a = ComposeSt TemplatesT m a
   liftBaseWith = defaultLiftBaseWith
@@ -164,7 +163,7 @@ instance MonadTransControl TemplatesT where
   {-# INLINE liftWith #-}
   {-# INLINE restoreT #-}
 
-instance (Applicative m, Monad m) => TemplatesMonad (TemplatesT m) where
+instance {-# OVERLAPPING #-} Monad m => TemplatesMonad (TemplatesT m) where
   getTemplates = TemplatesT $ do
     (lang, ts) <- ask
     return $ localizedVersion lang ts

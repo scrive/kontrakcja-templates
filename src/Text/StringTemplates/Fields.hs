@@ -32,7 +32,6 @@ module Text.StringTemplates.Fields ( Fields(..)
                                    , objects
                                    ) where
 
-import Control.Applicative
 import Control.Monad.Base (MonadBase)
 import Control.Monad.Catch
 import Control.Monad.Reader
@@ -111,32 +110,32 @@ objects name objs = Fields $ do
 class ToSElem a where
   toSElem :: (Stringable b) => a -> SElem b
 
-instance (HST.ToSElem a) => ToSElem a where
+instance {-# OVERLAPPING #-} (HST.ToSElem a) => ToSElem a where
   toSElem = HST.toSElem
 
-instance ToSElem Int16 where
+instance {-# OVERLAPPING #-}ToSElem Int16 where
   toSElem = toSElem . toInteger
 
-instance ToSElem Int32 where
+instance {-# OVERLAPPING #-}ToSElem Int32 where
   toSElem = toSElem . toInteger
 
-instance ToSElem Int64 where
+instance {-# OVERLAPPING #-}ToSElem Int64 where
   toSElem = toSElem . toInteger
 
-instance ToSElem BS.ByteString where
+instance {-# OVERLAPPING #-}ToSElem BS.ByteString where
   toSElem = HST.toSElem . BS.toString
 
-instance ToSElem (Maybe BS.ByteString) where
+instance {-# OVERLAPPING #-}ToSElem (Maybe BS.ByteString) where
   toSElem = HST.toSElem . fmap BS.toString
 
-instance ToSElem [BS.ByteString] where
+instance {-# OVERLAPPING #-}ToSElem [BS.ByteString] where
   toSElem = toSElem . fmap BS.toString
 
-instance ToSElem String where
-  toSElem l = HST.toSElem l
+instance {-# OVERLAPPING #-}ToSElem String where
+  toSElem = HST.toSElem
 
 instance {-# OVERLAPPING #-} (HST.ToSElem a) => ToSElem [a] where
-  toSElem l  = LI $ map HST.toSElem l
+  toSElem = LI . map HST.toSElem
 
 instance {-# OVERLAPPING #-} (HST.ToSElem a) => ToSElem (M.Map String a) where
-  toSElem m = SM $ M.map HST.toSElem m
+  toSElem = SM . M.map HST.toSElem
