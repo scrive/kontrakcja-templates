@@ -91,7 +91,6 @@ import Text.StringTemplates.Templates.Class
 import Text.StringTemplates.TemplatesLoader
 
 import Text.StringTemplates.Fields
-import Control.Applicative
 import Control.Monad.Base (MonadBase)
 import Control.Monad.Catch
 import Control.Monad.Reader

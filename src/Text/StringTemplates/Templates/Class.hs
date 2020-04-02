@@ -1,6 +1,5 @@
 module Text.StringTemplates.Templates.Class where
 
-import Control.Applicative
 import Control.Monad.Trans
 
 import Text.StringTemplates.TemplatesLoader
