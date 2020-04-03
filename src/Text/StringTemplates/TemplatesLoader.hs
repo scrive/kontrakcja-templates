@@ -1,4 +1,3 @@
-{-# OPTIONS_GHC -fno-warn-orphans #-}
 -- | Module for reading templates from files
 module Text.StringTemplates.TemplatesLoader ( Templates
                                             , GlobalTemplates
@@ -12,7 +11,6 @@ import Prelude hiding (fail)
 import Data.List (isSuffixOf,find)
 import Data.Maybe (fromMaybe)
 import Text.StringTemplate
-import Text.StringTemplate.Classes
 import Control.Monad hiding (fail)
 import Control.Monad.Fail (MonadFail(..))
 import Control.Monad.IO.Class
@@ -96,18 +94,3 @@ renderTemplateMain ts name params f = case mt of
     ts' = setEncoderGroup stringToHtmlString ts
     noescape = groupStringTemplates [("noescape", newSTMP "$it$" :: StringTemplate String)]
     mt = getStringTemplate name $ mergeSTGroups noescape ts'
-
-{- For some reasons the SElem a is not of class ToSElem -}
-instance (Stringable a) => ToSElem (SElem a) where
-  toSElem (STR a) = (STR a)
-  toSElem (BS a) = (BS a)
-  toSElem (STSH a) = (STSH a)
-  toSElem (SM a) = (SM $ fmap (toSElem) a)
-  toSElem (LI a) = (LI $ fmap (toSElem) a)
-  toSElem (SBLE a) = (SBLE $ convert a)
-  toSElem (SNAT a) = (SNAT $ convert a)
-  toSElem (TXT a) = (STR $ convert a)
-  toSElem SNull = SNull
-
-convert :: (Stringable a, Stringable b) => a -> b
-convert = stFromString . stToString

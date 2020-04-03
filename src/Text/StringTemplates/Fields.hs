@@ -1,4 +1,5 @@
 {-# LANGUAGE CPP, MultiParamTypeClasses, TypeFamilies #-}
+{-# OPTIONS_GHC -Wno-orphans #-}
 -- | Module for easy creating template params
 --
 -- Example usage:
@@ -38,14 +39,9 @@ import Control.Monad.Reader
 import Control.Monad.State.Strict
 import Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM, defaultLiftWith, defaultRestoreT)
 import Data.Int
-import Text.StringTemplate.Base hiding (ToSElem, toSElem, render)
-import Text.StringTemplate.Classes hiding (ToSElem, toSElem)
-import qualified Data.ByteString as BS
-import qualified Data.ByteString.UTF8 as BS
+import Text.StringTemplate.Base hiding (render)
+import Text.StringTemplate.Classes
 import qualified Data.Map as M
-import qualified Text.StringTemplate.Classes as HST
-
-import Text.StringTemplates.TemplatesLoader ()
 
 type InnerFields = StateT [(String, SElem String)]
 
@@ -103,39 +99,28 @@ objects name objs = Fields $ do
   vals <- mapM (liftM M.fromList . lift . runFields) objs
   modify ((name, toSElem vals) :)
 
--- | Important Util. We overide default serialisation to support serialisation of bytestrings .
--- | We use ByteString with UTF all the time but default is Latin-1 and we get strange chars
--- | after rendering. !This will not always work with advanced structures.! So always convert to String.
-
-class ToSElem a where
-  toSElem :: (Stringable b) => a -> SElem b
-
-instance (HST.ToSElem a) => ToSElem a where
-  toSElem = HST.toSElem
+-- Missing instances of ToSElem we need
 
 instance ToSElem Int16 where
-  toSElem = toSElem . toInteger
+  toSElem = STR . show
 
 instance ToSElem Int32 where
-  toSElem = toSElem . toInteger
+  toSElem = STR . show
 
 instance ToSElem Int64 where
-  toSElem = toSElem . toInteger
+  toSElem = STR . show
 
-instance ToSElem BS.ByteString where
-  toSElem = HST.toSElem . BS.toString
+-- For some reasons the SElem a is not of class ToSElem
+instance Stringable a => ToSElem (SElem a) where
+  toSElem (STR a) = (STR a)
+  toSElem (BS a) = (BS a)
+  toSElem (STSH a) = (STSH a)
+  toSElem (SM a) = (SM $ fmap (toSElem) a)
+  toSElem (LI a) = (LI $ fmap (toSElem) a)
+  toSElem (SBLE a) = (SBLE $ convert a)
+  toSElem (SNAT a) = (SNAT $ convert a)
+  toSElem (TXT a) = (STR $ convert a)
+  toSElem SNull = SNull
 
-instance ToSElem (Maybe BS.ByteString) where
-  toSElem = HST.toSElem . fmap BS.toString
-
-instance ToSElem [BS.ByteString] where
-  toSElem = toSElem . fmap BS.toString
-
-instance ToSElem String where
-  toSElem l = HST.toSElem l
-
-instance {-# OVERLAPPING #-} (HST.ToSElem a) => ToSElem [a] where
-  toSElem l  = LI $ map HST.toSElem l
-
-instance {-# OVERLAPPING #-} (HST.ToSElem a) => ToSElem (M.Map String a) where
-  toSElem m = SM $ M.map HST.toSElem m
+convert :: (Stringable a, Stringable b) => a -> b
+convert = stFromString . stToString

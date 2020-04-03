@@ -11,7 +11,7 @@ class (Applicative m, Monad m) => TemplatesMonad m where
   -- | Get templates (for text templates specified language name is used).
   getTextTemplatesByLanguage :: String -> m Templates
 
--- | Generic, overlapping instance.
+-- | Generic, overlappable instance.
 instance {-# OVERLAPPABLE #-}
   ( Applicative (t m)
   , Monad (t m)
