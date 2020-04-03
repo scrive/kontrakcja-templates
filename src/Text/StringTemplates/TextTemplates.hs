@@ -8,7 +8,6 @@ import System.Directory
 import Data.List
 import Data.Maybe
 import Control.Monad
-import Data.Functor
 
 --- | Searches recursively give directory for translations
 ---   path/lang_code/*.json will match.

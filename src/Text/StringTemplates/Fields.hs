@@ -32,7 +32,6 @@ module Text.StringTemplates.Fields ( Fields(..)
                                    , objects
                                    ) where
 
-import Control.Applicative
 import Control.Monad.Base (MonadBase)
 import Control.Monad.Catch
 import Control.Monad.Reader
