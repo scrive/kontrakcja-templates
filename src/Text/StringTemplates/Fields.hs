@@ -39,6 +39,7 @@ import Control.Monad.Reader
 import Control.Monad.State.Strict
 import Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM, defaultLiftWith, defaultRestoreT)
 import Data.Int
+import Data.Word
 import Text.StringTemplate.Base hiding (render)
 import Text.StringTemplate.Classes
 import qualified Data.Map as M
@@ -99,7 +100,7 @@ objects name objs = Fields $ do
   vals <- mapM (liftM M.fromList . lift . runFields) objs
   modify ((name, toSElem vals) :)
 
--- Missing instances of ToSElem we need
+-- Missing orphan instances of ToSElem we need
 
 instance ToSElem Int16 where
   toSElem = STR . show
@@ -108,6 +109,21 @@ instance ToSElem Int32 where
   toSElem = STR . show
 
 instance ToSElem Int64 where
+  toSElem = STR . show
+
+instance ToSElem Word where
+  toSElem = STR . show
+
+instance ToSElem Word8 where
+  toSElem = STR . show
+
+instance ToSElem Word16 where
+  toSElem = STR . show
+
+instance ToSElem Word32 where
+  toSElem = STR . show
+
+instance ToSElem Word64 where
   toSElem = STR . show
 
 -- For some reasons the SElem a is not of class ToSElem
@@ -119,7 +135,7 @@ instance Stringable a => ToSElem (SElem a) where
   toSElem (LI a) = (LI $ fmap (toSElem) a)
   toSElem (SBLE a) = (SBLE $ convert a)
   toSElem (SNAT a) = (SNAT $ convert a)
-  toSElem (TXT a) = (STR $ convert a)
+  toSElem (TXT a) = (TXT a)
   toSElem SNull = SNull
 
 convert :: (Stringable a, Stringable b) => a -> b
