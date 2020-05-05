@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, MultiParamTypeClasses, TypeFamilies #-}
+{-# LANGUAGE CPP #-}
 {-# OPTIONS_GHC -Wno-orphans #-}
 -- | Module for easy creating template params
 --

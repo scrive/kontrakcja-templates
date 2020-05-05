@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, MultiParamTypeClasses, TypeFamilies #-}
+{-# LANGUAGE CPP #-}
 -----------------------------------------------------------------------------
 -- |
 -- Module      :  Templates.Templates
