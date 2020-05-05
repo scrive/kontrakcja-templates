@@ -16,7 +16,7 @@ Copyright:           Scrive AB
 Build-type:          Simple
 Stability:           None
 Category:            Web
-Cabal-version:       >=1.9
+Cabal-version:       >=1.10
 Tested-with:         GHC ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.5 || ==8.8.3 || ==8.10.1
 
 Source-repository head
@@ -34,9 +34,6 @@ Library
 
   hs-source-dirs:  src
   GHC-Options:     -Wall
-  Extensions:      FlexibleInstances,
-                   UndecidableInstances,
-                   GeneralizedNewtypeDeriving
   build-depends:   base >= 4.9 && < 5,
                    HStringTemplate >= 0.7.0,
                    exceptions >= 0.6,
@@ -49,3 +46,10 @@ Library
                    directory >= 1.2,
                    html >= 1.0.1.2,
                    json >= 0.5
+
+  Default-language: Haskell2010
+  Default-Extensions: GeneralizedNewtypeDeriving
+                      MultiParamTypeClasses
+                      TypeFamilies
+                      UndecidableInstances
+                      FlexibleInstances
