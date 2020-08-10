@@ -93,9 +93,19 @@ import Text.StringTemplates.TemplatesLoader
 import Text.StringTemplates.Fields
 import Control.Monad.Base (MonadBase)
 import Control.Monad.Catch
+import Control.Monad.Except
 import Control.Monad.Reader
-import Control.Monad.Identity
-import Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM, defaultLiftWith, defaultRestoreT)
+import Control.Monad.Identity hiding (liftCatch)
+import Control.Monad.Signatures
+import Control.Monad.Trans.Control (
+    MonadBaseControl(..)
+  , MonadTransControl(..)
+  , ComposeSt
+  , defaultLiftBaseWith
+  , defaultRestoreM
+  , defaultLiftWith
+  , defaultRestoreT
+  )
 
 -- | renders a template by name
 renderTemplate :: TemplatesMonad m =>
@@ -170,3 +180,11 @@ instance (Applicative m, Monad m) => TemplatesMonad (TemplatesT m) where
   getTextTemplatesByLanguage lang = TemplatesT $ do
     (_, ts) <- ask
     return $ localizedVersion lang ts
+
+instance MonadError e m => MonadError e (TemplatesT m) where
+  throwError = lift . throwError
+  catchError = liftCatch catchError
+    where
+      liftCatch :: Catch e m a -> Catch e (TemplatesT m) a
+      liftCatch f m h = TemplatesT . ReaderT $ \r ->
+        f (runReaderT (unTT m) r) (\e -> runReaderT (unTT $ h e) r)
