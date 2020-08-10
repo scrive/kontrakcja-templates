@@ -97,15 +97,14 @@ import Control.Monad.Except
 import Control.Monad.Reader
 import Control.Monad.Identity hiding (liftCatch)
 import Control.Monad.Signatures
-import Control.Monad.Trans.Control (
-    MonadBaseControl(..)
-  , MonadTransControl(..)
-  , ComposeSt
-  , defaultLiftBaseWith
-  , defaultRestoreM
-  , defaultLiftWith
-  , defaultRestoreT
-  )
+import Control.Monad.Trans.Control ( MonadBaseControl(..)
+                                   , MonadTransControl(..)
+                                   , ComposeSt
+                                   , defaultLiftBaseWith
+                                   , defaultRestoreM
+                                   , defaultLiftWith
+                                   , defaultRestoreT
+                                   )
 
 -- | renders a template by name
 renderTemplate :: TemplatesMonad m =>
