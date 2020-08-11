@@ -182,8 +182,4 @@ instance (Applicative m, Monad m) => TemplatesMonad (TemplatesT m) where
 
 instance MonadError e m => MonadError e (TemplatesT m) where
   throwError = lift . throwError
-  catchError = liftCatch catchError
-    where
-      liftCatch :: Catch e m a -> Catch e (TemplatesT m) a
-      liftCatch f m h = TemplatesT . ReaderT $ \r ->
-        f (runReaderT (unTT m) r) (\e -> runReaderT (unTT $ h e) r)
+  catchError m h = TemplatesT $ catchError (unTT m) (unTT . h)
