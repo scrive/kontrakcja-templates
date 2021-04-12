@@ -53,3 +53,15 @@ Library
                       TypeFamilies
                       UndecidableInstances
                       FlexibleInstances
+
+test-suite kontrakcja-templates-test
+  type:       exitcode-stdio-1.0
+  main-is:    Main.hs
+  hs-source-dirs: test
+  build-depends: base >= 4.9 && < 5
+               , HStringTemplate >= 0.7.0
+               , kontrakcja-templates
+               , containers >= 0.4.2.1
+               , tasty
+               , tasty-hunit
+  Default-Extensions: ScopedTypeVariables
