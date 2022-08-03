@@ -37,7 +37,7 @@ import Control.Monad.Base (MonadBase)
 import Control.Monad.Catch
 import Control.Monad.Reader
 import Control.Monad.State.Strict
-import Control.Monad.Trans.Control (MonadBaseControl(..), MonadTransControl(..), ComposeSt, defaultLiftBaseWith, defaultRestoreM, defaultLiftWith, defaultRestoreT)
+import Control.Monad.Trans.Control
 import Data.Int
 import Data.Word
 import Text.StringTemplate.Base hiding (render)
@@ -48,33 +48,7 @@ type InnerFields = StateT [(String, SElem String)]
 
 -- | Simple monad transformer that collects info about template params
 newtype Fields m a = Fields { unFields :: InnerFields m a }
-  deriving (Applicative, Functor, Monad, MonadBase b, MonadTrans, MonadThrow, MonadCatch, MonadMask)
-
-instance MonadBaseControl b m => MonadBaseControl b (Fields m) where
-#if MIN_VERSION_monad_control(1,0,0)
-  type StM (Fields m) a = ComposeSt Fields m a
-  liftBaseWith = defaultLiftBaseWith
-  restoreM     = defaultRestoreM
-#else
-  newtype StM (Fields m) a = StM { unStM :: ComposeSt Fields m a }
-  liftBaseWith = defaultLiftBaseWith StM
-  restoreM     = defaultRestoreM unStM
-#endif
-  {-# INLINE liftBaseWith #-}
-  {-# INLINE restoreM #-}
-
-instance MonadTransControl Fields where
-#if MIN_VERSION_monad_control(1,0,0)
-  type StT Fields m = StT InnerFields m
-  liftWith = defaultLiftWith Fields unFields
-  restoreT = defaultRestoreT Fields
-#else
-  newtype StT Fields m = StT { unStT :: StT InnerFields m }
-  liftWith = defaultLiftWith Fields unFields StT
-  restoreT = defaultRestoreT Fields unStT
-#endif
-  {-# INLINE liftWith #-}
-  {-# INLINE restoreT #-}
+  deriving (Applicative, Functor, Monad, MonadBase b, MonadBaseControl b, MonadTrans, MonadTransControl, MonadThrow, MonadCatch, MonadMask)
 
 -- | get all collected template params
 runFields :: Monad m => Fields m () -> m [(String, SElem String)]
@@ -91,13 +65,13 @@ valueM name mval = lift mval >>= value name
 -- | collect all params under a new namespace
 object :: Monad m => String -> Fields m () -> Fields m ()
 object name obj = Fields $ do
-  val <- M.fromList `liftM` lift (runFields obj)
+  val <- M.fromList <$> lift (runFields obj)
   modify ((name, toSElem val) :)
 
 -- | collect all params under a new list namespace
 objects :: Monad m => String -> [Fields m ()] -> Fields m ()
 objects name objs = Fields $ do
-  vals <- mapM (liftM M.fromList . lift . runFields) objs
+  vals <- mapM (fmap M.fromList . lift . runFields) objs
   modify ((name, toSElem vals) :)
 
 -- Missing orphan instances of ToSElem we need
