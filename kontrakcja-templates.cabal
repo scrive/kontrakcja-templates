@@ -1,5 +1,6 @@
+Cabal-version:       3.0
 Name:                kontrakcja-templates
-Version:             0.12
+Version:             0.12.0.1
 Synopsis:
     Utilities for working with many HStringTemplate templates from files.
 Description:
@@ -8,16 +9,15 @@ Description:
     template versions (e.g. for translations).
 
 Homepage:            https://github.com/scrive/kontrakcja-templates
-License:             BSD3
+License:             BSD-3-Clause
 License-file:        LICENSE
 Author:              Scrive AB
-Maintainer:          Bartek &#262;wik&#322;owski <bartek@scrive.com>
+Maintainer:          Bartek Ćwikłowski <bartek@scrive.com>
 Copyright:           Scrive AB
 Build-type:          Simple
 Stability:           None
 Category:            Web
-Cabal-version:       >=1.10
-Tested-with:         GHC ==8.0.2 || ==8.2.2 || ==8.4.4 || ==8.6.5 || ==8.8.3 || ==8.10.1
+Tested-with:         GHC == { 8.10.7, 9.0.2, 9.2.8, 9.4.8, 9.6.6, 9.10.1 }
 
 Source-repository head
   type:     git
@@ -33,8 +33,10 @@ Library
                    Text.StringTemplates.Utils
 
   hs-source-dirs:  src
+
   GHC-Options:     -Wall
-  build-depends:   base >= 4.9 && < 5,
+
+  build-depends:   base >= 4.14 && < 5,
                    HStringTemplate >= 0.7.0,
                    exceptions >= 0.6,
                    containers >= 0.4.2.1,
@@ -48,6 +50,7 @@ Library
                    json >= 0.5
 
   Default-language: Haskell2010
+
   Default-Extensions: GeneralizedNewtypeDeriving
                       MultiParamTypeClasses
                       TypeFamilies

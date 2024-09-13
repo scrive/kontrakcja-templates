@@ -91,13 +91,13 @@ valueM name mval = lift mval >>= value name
 -- | collect all params under a new namespace
 object :: Monad m => String -> Fields m () -> Fields m ()
 object name obj = Fields $ do
-  val <- M.fromList `liftM` lift (runFields obj)
+  val <- M.fromList <$> lift (runFields obj)
   modify ((name, toSElem val) :)
 
 -- | collect all params under a new list namespace
 objects :: Monad m => String -> [Fields m ()] -> Fields m ()
 objects name objs = Fields $ do
-  vals <- mapM (liftM M.fromList . lift . runFields) objs
+  vals <- mapM (fmap M.fromList . lift . runFields) objs
   modify ((name, toSElem vals) :)
 
 -- Missing orphan instances of ToSElem we need
