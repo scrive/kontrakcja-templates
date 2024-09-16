@@ -1,4 +1,4 @@
-# kontrakcja-templates-0.12.0.1 (2024-??-??)
+# kontrakcja-templates-0.12.0.1 (2024-09-16)
 * Drop support for GHC =< 8.10.
 * Fix compilation with new `mtl`.
 
