@@ -31,7 +31,7 @@ readTranslationFile file = do
   mjson <- readFile $ file
   case decode mjson of
      Ok js -> return $ sort $ textsFromJSON $ js
-     e -> error $ "Can't parse json with message " ++ show e ++ "  for json" ++ mjson
+     e -> error $ "Can't parse json file [" ++ file ++ "] with message [" ++ show e ++ "] for json: " ++ mjson
 
 
 textsFromJSON :: JSValue -> [(String,String)]
